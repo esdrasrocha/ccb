@@ -1,0 +1,117 @@
+​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta de Cultos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        .donation-banner {
+            background-color: #f9f9f9;
+            border: 2px solid #4CAF50;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .donation-banner h3 {
+            color: #4CAF50;
+            margin: 0;
+        }
+        .donation-banner p {
+            margin: 10px 0;
+        }
+        .pix-key {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+        .copy-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .copy-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Consulta de Cultos</h1>
+    <form id="cultoForm">
+        <label for="city">Cidade:</label><br>
+        <input type="text" id="city" name="city" required><br><br>
+        <label for="neighborhood">Bairro:</label><br>
+        <input type="text" id="neighborhood" name="neighborhood" required><br><br>
+        <button type="submit">Consultar</button>
+    </form>
+    <div id="result"></div>
+
+    <!-- Banner de Doação -->
+    <div class="donation-banner">
+        <h3>Apoie Nosso Projeto!</h3>
+        <p>Se este serviço foi útil, considere fazer uma doação via Pix para nos ajudar a continuar.</p>
+        <p class="pix-key">Chave Pix: seu-email@exemplo.com</p>
+        <!-- Ou use um QR Code -->
+        <!-- <img src="SEU_QR_CODE_PIX.png" alt="QR Code Pix" style="max-width: 200px;"> -->
+        <button class="copy-button" onclick="copyPixKey()">Copiar Chave Pix</button>
+    </div>
+
+    <script>
+        // Consulta ao n8n
+        document.getElementById("cultoForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            const resultDiv = document.getElementById("result");
+
+            const webhookUrl = "https://SEU_N8N_CLOUD.webhook.n8n.cloud/abc123";
+
+            try {
+                resultDiv.innerHTML = "Consultando...";
+                const response = await fetch(webhookUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.length > 0) {
+                        resultDiv.innerHTML = "<h3>Cultos encontrados:</h3><ul>" + 
+                            result.map(church => `<li>${church['Nome da Igreja']} (${church['Horário']})</li>`).join('') + 
+                            "</ul>";
+                    } else {
+                        resultDiv.innerHTML = "Nenhum culto encontrado para este bairro e cidade.";
+                    }
+                } else {
+                    resultDiv.innerHTML = "Erro ao consultar.";
+                }
+            } catch (error) {
+                resultDiv.innerHTML = "Erro: " + error.message;
+            }
+        });
+
+        // Função para copiar a chave Pix
+        function copyPixKey() {
+            const pixKey = "seu-email@exemplo.com"; // Substitua pela sua chave Pix
+            navigator.clipboard.writeText(pixKey).then(() => {
+                alert("Chave Pix copiada: " + pixKey);
+            }).catch(err => {
+                alert("Erro ao copiar: " + err);
+            });
+        }
+    </script>
+</body>
+</html>
+​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
